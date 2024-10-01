@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Chat with GPT</h1>
-    <form id="promptForm" action="https://hook.integromat.com/YOUR_WEBHOOK_URL" method="POST">
+    <form id="promptForm" action="https://hook.integromat.com/https://hook.us1.make.com/axsijxnxlnri3f4vccuuboo4mt3ssv69" method="POST">
         <label for="prompt">Enter your prompt:</label>
         <textarea id="prompt" name="prompt" rows="5" cols="50" required></textarea><br><br>
         <button type="submit">Submit</button>
