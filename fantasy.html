@@ -69,10 +69,10 @@
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
 
-        // Webhook URL for triggering the initial question (replace with your actual Webhook URL from Make.com)
+        // Webhook URL for triggering the initial question (this is Webhook 1 URL you provided)
         const initialQuestionWebhookURL = 'https://hook.us1.make.com/2pt8z4dhfoc74fkh32wgvu5nwdx5m3yh';
 
-        // Webhook URL for handling user responses (replace with your actual Webhook URL from Make.com)
+        // Webhook URL for handling user responses (this is Webhook 2 URL you provided)
         const userResponseWebhookURL = 'https://hook.us1.make.com/qbxfo8zyd1iw2kuhfonxrc3i3ep24da3';
 
         // Function to add messages to the chatbox
@@ -86,6 +86,7 @@
         // Trigger the first question when the page loads
         window.onload = async function() {
             try {
+                // Send a request to Webhook 1 when the page loads to ask the initial question
                 const response = await fetch(initialQuestionWebhookURL, {
                     method: 'POST',
                     headers: {
@@ -93,38 +94,41 @@
                     }
                 });
 
+                // Get the response (initial question) from Webhook 1
                 const data = await response.json();
-                addMessage(data.message, 'bot'); // Display the initial question
+
+                // Display the initial question in the chatbox
+                addMessage(data.message, 'bot');
             } catch (error) {
                 console.error('Error triggering the first question:', error);
                 addMessage('Error: Could not load the initial question.', 'bot');
             }
         };
 
-        // Handle user input and response
+        // Handle user input and send the response to Webhook 2
         sendButton.addEventListener('click', async () => {
-            const userAnswer = userInput.value.trim();
-            if (!userAnswer) return;
+            const userAnswer = userInput.value.trim();  // Get user input from the HTML form
+            if (!userAnswer) return;  // Don't send empty responses
 
-            // Display the user's message
+            // Display the user's message in the chatbox
             addMessage(userAnswer, 'user');
 
-            // Clear the input field
+            // Clear the input field after sending the message
             userInput.value = '';
 
             try {
-                // Send the user's response to the Webhook
+                // Send the user's response to Webhook 2
                 const response = await fetch(userResponseWebhookURL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ answer: userAnswer })
+                    body: JSON.stringify({ answer: userAnswer })  // Send user answer as JSON
                 });
 
-                // Display the next question from the bot
+                // Get the follow-up question or response from Webhook 2
                 const data = await response.json();
-                addMessage(data.message, 'bot');
+                addMessage(data.message, 'bot');  // Display the next question from Webhook 2
             } catch (error) {
                 console.error('Error handling user response:', error);
                 addMessage('Error: Could not process your response.', 'bot');
