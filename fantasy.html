@@ -69,8 +69,11 @@
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
 
-        // Webhook URL for triggering the questions and responses (replace with your actual Webhook URL from Make.com)
-        const webhookURL = 'https://hook.us1.make.com/qbxfo8zyd1iw2kuhfonxrc3i3ep24da3';
+        // Webhook URL for triggering the initial question (replace with your actual Webhook URL from Make.com)
+        const initialQuestionWebhookURL = 'https://hook.us1.make.com/qbxfo8zyd1iw2kuhfonxrc3i3ep24da3';
+
+        // Webhook URL for handling user responses (replace with your actual Webhook URL from Make.com)
+        const userResponseWebhookURL = 'https://hook.us1.make.com/0xwsg6kguo4jmrdjl5wr7oqla6kvke8y';
 
         // Function to add messages to the chatbox
         function addMessage(message, sender) {
@@ -79,6 +82,24 @@
             messageElement.innerText = message;
             chatHistory.appendChild(messageElement);
         }
+
+        // Trigger the first question when the page loads
+        window.onload = async function() {
+            try {
+                const response = await fetch(initialQuestionWebhookURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                addMessage(data.message, 'bot'); // Display the initial question
+            } catch (error) {
+                console.error('Error triggering the first question:', error);
+                addMessage('Error: Could not load the initial question.', 'bot');
+            }
+        };
 
         // Handle user input and response
         sendButton.addEventListener('click', async () => {
@@ -93,7 +114,7 @@
 
             try {
                 // Send the user's response to the Webhook
-                const response = await fetch(webhookURL, {
+                const response = await fetch(userResponseWebhookURL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -113,3 +134,4 @@
 
 </body>
 </html>
+
