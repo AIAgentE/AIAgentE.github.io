@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Webhook</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        #chatbox {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #inputContainer {
+            margin-top: 10px;
+        }
+        #userInput {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+        }
+        #sendButton {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .bot-message {
+            text-align: left;
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .user-message {
+            text-align: right;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chatbox">
+        <div id="chat-history"></div>
+    </div>
+
+    <div id="inputContainer">
+        <input type="text" id="userInput" placeholder="Type your answer here..." />
+        <button id="sendButton">Send</button>
+    </div>
+
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Webhook URL for triggering the first question (replace with your actual Webhook URL from Make.com)
+        const firstQuestionWebhookURL = 'https://hook.us1.make.com/YOUR-FIRST-WEBHOOK-URL';
+
+        // Webhook URL for handling user responses (replace with your actual Webhook URL from Make.com)
+        const userResponseWebhookURL = 'https://hook.us1.make.com/YOUR-SECOND-WEBHOOK-URL';
+
+        // Function to add messages to the chatbox
+        function addMessage(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender + '-message');
+            messageElement.innerText = message;
+            chatHistory.appendChild(messageElement);
+        }
+
+        // Trigger the first question when the page loads
+        window.onload = async function() {
+            try {
+                const response = await fetch(firstQuestionWebhookURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                addMessage(data.message, 'bot');
+            } catch (error) {
+                console.error('Error triggering the first question:', error);
+            }
+        };
+
+        // Handle user input and response
+        sendButton.addEventListener('click', async () => {
+            const userAnswer = userInput.value.trim();
+            if (!userAnswer) return;
+
+            // Display the user's message
+            addMessage(userAnswer, 'user');
+
+            // Clear the input field
+            userInput.value = '';
+
+            try {
+                // Send the user's response to the Webhook
+                const response = await fetch(userResponseWebhookURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ answer: userAnswer })
+                });
+
+                // Display the next question from the bot
+                const data = await response.json();
+                addMessage(data.message, 'bot');
+            } catch (error) {
+                console.error('Error handling user response:', error);
+                addMessage('Error: Could not process your response.', 'bot');
+            }
+        });
+    </script>
+
+</body>
+</html>
